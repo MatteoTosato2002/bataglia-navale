@@ -162,6 +162,8 @@ app.get("/fire", ({ query: { x, y, team, password } }, res) => {
   console.log(y)
   console.log(team)
   console.log(password)
+  let tempo = new Date().getTime()
+  if (tempo - teams[team].lastFiredBullet > 5000 ){
   if(teams[team].password === password){
     if(x>W || y>H) {teams[team].score -= 50000}else{ 
     field.forEach( e => {
@@ -182,7 +184,9 @@ app.get("/fire", ({ query: { x, y, team, password } }, res) => {
       }
     })}
     console.log(teams[team].score)
-  }
+    teams[team].lastFiredBullet = new Date().getTime()
+    console.log(teams[team].lastFiredBullet)
+  }} else { console.log("brutto hacker vai a mangiare il tonno")}
   /*
     1. segnare la cella come colpitas
     2. segnare eventualmente la nave come colpita (ridurre gli hp e verificare se e' morta)
