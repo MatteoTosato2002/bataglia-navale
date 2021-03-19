@@ -1,0 +1,25 @@
+{
+  "name": "battaglia-navale",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "faker": "^5.4.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liceo-ariosto-spallanzani/battaglia-navale.git"
+  },
+  "bugs": {
+    "url": "https://github.com/liceo-ariosto-spallanzani/battaglia-navale/issues"
+  },
+  "homepage": "https://github.com/liceo-ariosto-spallanzani/battaglia-navale#readme",
+  "description": ""
+}
