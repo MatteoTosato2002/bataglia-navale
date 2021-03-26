@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "faker": "^5.4.0"
+    "faker": "^5.4.0",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {},
   "repository": {

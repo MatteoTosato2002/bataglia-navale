@@ -17,9 +17,9 @@ const teams = {
 const field = []
 const ships = []
 
-const W = process.argv[2] || 6
-const H = process.argv[3] || 6
-const S = process.argv[4] || 10
+const W = 6
+const H = 6
+const S = 6
 
 for (let y = 0; y < H; y++) {
   const row = []
@@ -28,52 +28,43 @@ for (let y = 0; y < H; y++) {
       team: null,
       x,
       y,
-      ship: null,
+      ship: false,
+      sid: null,
       hit: false
-    })    
+    })
   } 
   field.push(row)
 }
 
-let id = 1
+let id = 0
 for (let i = 0; i < S; i++) {
-  const maxHp = faker.random.number({ min: 1, max: 6 })
-  const vertical = faker.random.boolean()
-  console.log({ vertical, maxHp })
+  const maxHp = faker.random.number({ min: 1, max: 3 })
 
   const ship = {
     id,
     name: faker.name.firstName(),
-    x: faker.random.number({ min: 0, max: vertical ? W - 1 : W - maxHp }),
-    y: faker.random.number({ min: 0, max: vertical ? H - maxHp : H - 1 }),
-    vertical,
+    x: faker.random.number({ min: 0, max: 5 }),
+    y: faker.random.number({ min: 0, max: 5 }),
     maxHp,
-    curHp: 4,
+    curHp: maxHp,
     alive: true,
     killer: null
   }
 
   let found = false
-  for (let e = 0; e < ship.maxHp; e++) {
-    const x = ship.vertical ? ship.x : ship.x + e
-    const y = ship.vertical ? ship.y + e : ship.y
-    if (field[y][x].ship) {
-      found = true
-      break
+  console.log(field[ship.x][ship.y])
+  if (field[ship.x][ship.y].ship) {
+    found = true
+    i += 1
+    }
+  if (!found) {
+      field[ship.x][ship.y].ship = true
+      field[ship.x][ship.y].sid = id  
+      id += 1  
+      ships.push(ship)
     }
   }
 
-  if (!found) {
-    for (let e = 0; e < ship.maxHp; e++) {
-      const x = ship.vertical ? ship.x : ship.x + e
-      const y = ship.vertical ? ship.y + e : ship.y
-      field[y][x].ship = ship
-    }
-  
-    ships.push(ship)
-    id ++
-  }
-}
 
 app.get("/", ({ query: { format } }, res) => {
   const visibleField = field.map(row => row.map(cell => ({ 
@@ -156,56 +147,48 @@ app.get("/signup", (req, res) => {
   </div>
   <button type="button" class="btn btn-primary">Signup</button>`)
 })
+
+console.log(field)
 app.get("/fire", ({ query: { x, y, team, password } }, res) => {
-  console.log(ships)
-  console.log(x)
-  console.log(y)
-  console.log(team)
-  console.log(password)
+  if(teams[team].password === password){
+  xh = parseInt(x)
+  yh = parseInt(y)
   let tempo = new Date().getTime()
-  if (tempo - teams[team].lastFiredBullet > 5000 ){
+  let punteggio = 0
+  if (tempo - teams[team].lastFiredBullet > 1500 ){
   if(teams[team].password === password){
     if(x>W || y>H) {teams[team].score -= 50000}else{ 
-    field.forEach( e => {
-      if (e.x === x && e.y === y){
+    field.forEach( z => {
+      z.forEach(e => {
+      if (e.x === xh && e.y === yh){
         if(!e.hit){
           e.hit = true
           e.team = team
           if (e.ship) {
-            e.ship.curHp -= 1
-            teams[team].score += 20
-            if (e.ship.curHp === 0) {
+            ships[e.sid].curHp -= 1
+            if (ships[e.sid].curHp === 0) {
               e.ship.alive = false
               e.ship.killer = team
               teams[team].score += 30
+              console.log("preso")
+              punteggio += 30
+            } else {
+              teams[team].score += 10
+              punteggio += 10
+              console.log(ships[e.sid])
             }
           }
         } else {teams[team].score -= 5}
       }
-    })}
-    console.log(teams[team].score)
+    })})
     teams[team].lastFiredBullet = new Date().getTime()
-    console.log(teams[team].lastFiredBullet)
   }} else { console.log("brutto hacker vai a mangiare il tonno")}
-  /*
-    1. segnare la cella come colpitas
-    2. segnare eventualmente la nave come colpita (ridurre gli hp e verificare se e' morta)
-    3. assegnare il team sia alla cella che alla nave (eventuale)
-    4. assicurarsi che il team che chiama l'endpoint non possa chiamarlo per piu' di una volta al secondo (opzionale)
-    5. definire un punteggio conseguente all'attacco:
-      a. punteggio molto negativo se si spara fuori dal campo
-      b. punteggio 0 se acqua
-      c. punteggio negativo se spari su casella gia' colpita
-      c. punteggio positivo se spari su nave ma non la uccidi
-      d. punteggio molto positivo se spari su nave e la uccidi
-  */
-  //res.json({
-  //  x, y, team
-  //})
-})
+  res.json({"score" : punteggio})
+}}})
+
 
 app.all("*", (req, res) => {
   res.sendStatus(404)
 })
 
-app.listen(PORT, () => console.log("App listening on port %O", PORT))
+app.listen(PORT, () => console.log("App listening on port ", PORT))
